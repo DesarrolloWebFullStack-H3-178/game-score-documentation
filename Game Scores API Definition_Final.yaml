@@ -1,0 +1,591 @@
+openapi: 3.0.3
+info:
+  title: Game Score Manager API
+  version: 1.3.9
+  description: The Score Management System project is a full-stack web application that allows players to manage and display scores for an online video game. Players will be able to register on the platform, log in, and their scores will be automatically recorded when they play. The highest scores will be displayed in a global ranking. Administrators will be able to manage the scores and user content from an administration panel.
+  contact:
+    email: xxxxxx@mail.com
+    name: Talento Tech FullStack project 2024
+    url: https://github.com/orgs/DWFSH3-178/repositories
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: http://localhost:3000/api/v1/
+tags:
+  - name: Authentication
+    description: Domain about security and users authentication
+  - name: Users
+    description: Domain about users data
+  - name: Scores
+    description: Domain about game scores data
+paths:
+  /auth/register:
+    post:
+      summary: Create User
+      tags: 
+        - Authentication
+      description: Creates an user with email, name, username and password
+      operationId: register
+      requestBody: 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        204:
+          description: User created successfully
+        400:
+          description: User Bad Request
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse400'
+        409:
+          description: User Conflict
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse409'
+  /auth/login:
+    post:
+      summary: Login user
+      tags:
+        - Authentication
+      description: Authenticate user with email and password
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        200:
+          description: User Login successfull
+          content:
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/UserLoginResponse' 
+        400:
+          description: User bad request
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse400' 
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /users/profile/{userid}:
+    get:
+      summary: Get detailed data of user
+      tags:
+        - Users
+      description: Get detailed data of user
+      operationId: Users
+      parameters: 
+        - in: path
+          name: userid
+          schema:
+            type: string
+          required: true
+          description: uuid of the user required
+      responses:
+        200:
+          description: User data
+          content:
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/UserDetails' 
+        400:
+          description: User bad request
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse400' 
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse401' 
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /users/session/{userid}:
+    get:
+      summary: Verify user session
+      tags:
+        - Users
+      description: Verify ifuser sessionis active
+      operationId: Session
+      parameters: 
+        - in: path
+          name: userid
+          schema:
+            type: string
+          required: true
+          description: uuid of the user required
+      responses:
+        200:
+          description: User data
+          content:
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/UserDetails' 
+        400:
+          description: User bad request
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse400' 
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse401' 
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /users/scores/{userId}:
+    get:
+      summary: Get user
+      tags:
+        - Users
+      description: Get scores of user given uuid
+      operationId: getUserScores
+      parameters: 
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: uuid of the user required
+      responses:
+        200:
+          description: User data
+          content:
+            application/json: 
+              schema:
+                type: array
+                items:
+                  anyOf:
+                    - $ref: '#/components/schemas/ScoresResponse'
+        400:
+          description: User bad request
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse400' 
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse401' 
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /users/profile/{userId}:
+    put:
+      summary: Update user
+      tags:
+        - Users
+      description: Alter data for user
+      operationId: userUpdate
+      parameters: 
+        - in: path
+          name: userId
+          schema:
+            type: integer
+          required: true
+          description: uuid of the user to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        200:
+          description: user information successfully modified
+          content:
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/UserDetails' 
+        400:
+          description: User bad request
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse400' 
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /scores:
+    post:
+      summary: Create a score to an User
+      tags:
+        - Scores
+      description: Create a score and relationates it to an User
+      operationId: createAScore
+      requestBody: 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScoreBody'
+      responses:
+        204: 
+          description: Score created successfully
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /scores/leaderboard:
+    get:
+      summary: Get the list of best players
+      tags:
+        - Scores
+      description: Get the list of best player in order of higher to lower scores
+      operationId: getLeaderboard
+      responses:
+        200: 
+          description: List users with highest scores
+          content:
+            application/json: 
+              schema:
+                type: array
+                items:
+                  anyOf:
+                    - $ref: '#/components/schemas/UserSummary'
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /users/admin/scores/{userId}:
+    delete:
+      summary: Deletes a score of specific player
+      tags:
+        - Scores
+      description: Only admin deletes an score with his UUID
+      operationId: deleteScore
+      parameters: 
+        - in: path
+          name: userId
+          required: true
+          description: Uuid of score to be deleted
+          schema: 
+            type: string
+      responses:
+        204: 
+          description: Score Deleted
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /users/admin:
+    get:
+      summary: Get the list of all players
+      tags:
+        - Users
+      description: Get the list of all players 
+      operationId: getAllPlayers
+      responses:
+        200: 
+          description: List of users with player role
+          content:
+            application/json: 
+              schema:
+                type: array
+                items:
+                  anyOf:
+                    - $ref: '#/components/schemas/UserDetails'
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /users/admin/{userid}:
+    patch:
+      summary: Block or Unblock an User
+      tags:
+        - Users
+      description: Block or Unblock an User with his UUID
+      operationId: blockUser
+      parameters: 
+        - in: path
+          name: userid
+          required: true
+          description: Uuid of user to be blocked
+          schema: 
+            type: string
+      responses:
+        204: 
+          description: User Blocked / Unblocked
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /users/admin/{userId}:
+    delete:
+      summary: Deletes an User
+      tags:
+        - Users
+      description: Only admin deletes an User with his UUID
+      operationId: deleteUser
+      parameters: 
+        - in: path
+          name: userId
+          required: true
+          description: Uuid of user to be deleted
+          schema: 
+            type: string
+      responses:
+        204: 
+          description: User Deleted
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+components:
+  schemas:
+    UserCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Jhon Doe Doe"
+        username:
+          type: string
+          example: "JhonDoe123"
+        email:
+          type: string
+          format: email
+          example: "jhonDoe@gmail.com"  
+        password:
+          type: string
+          format: password
+          example: "JhonDoe123456*."
+    UserUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Jhon Doe Doe"
+        username:
+          type: string
+          example: "JhonDoe123"
+        email:
+          type: string
+          format: email
+          example: "jhonDoe@gmail.com"  
+        password:
+          type: string
+          format: password
+          example: "JhonDoe123456*."
+        role:
+          type: string
+          example: "ADMIN"
+          description: Enum of existent roles
+        image:
+          type: string
+          example: "https://gameScores/jhonDoeAvatar.webp"
+        isActive:
+          type: boolean
+          example: false
+    UserLoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "JhonDoe@gmail.com"
+        password:
+          type: string
+          format: password
+          example: "JhonDoe123456*."
+    UserLoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+    UserSummary:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Jhon Doe Doe"
+        username:
+          type: string
+          example: "JhonDoe"
+        image:
+          type: string
+          example: "https://gameScores/jhonDoeAvatar.webp"
+        email:
+          type: string
+          format: email
+          example: "jhonDoe@gmail.com"
+        highestScore:
+          type: integer
+          example: 152
+    UserDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "uuid"
+        name:
+          type: string
+          example: "Jhon Doe Doe"
+        username:
+          type: string
+          example: "JhonDoe"
+        image:
+          type: string
+          example: "https://gameScores/jhonDoeAvatar.webp"
+        email:
+          type: string
+          format: email
+          example: "jhonDoe@gmail.com"
+        role:
+          type: string
+          example: "ADMIN|PLAYER"
+          description: Enum of existent roles
+        isBlocked:
+          type: boolean
+          example: false
+    ScoresResponse:
+      type: object
+      properties:
+        id: 
+          type: string
+          example: 'uuid'
+        score::
+          type: integer
+          example: 20
+        createdAt::
+          type: string
+          example: '2022-02-02T21:12:34.000Z'
+        game::
+          type: string
+          example: 'Mario Bros!'
+    CreateScoreBody:
+      type: object
+      properties:
+        playerId: 
+          type: string
+          example: 'uuid'
+        score::
+          type: integer
+          example: 20
+        game:
+          type: string
+          example: "Mario Bros!"
+    ErrorResponse400:
+      type: object
+      properties:
+        message: 
+          type: string
+          example: 'Invalid Data'
+        statusCode:
+          type: integer
+          example: 400
+    ErrorResponse401:
+      type: object
+      properties:
+        message: 
+          type: string
+          example: 'Unauthorized'
+        statusCode:
+          type: integer
+          example: 401
+    ErrorResponse409:
+      type: object
+      properties:
+        message: 
+          type: string
+          example: 'User Already Exists'
+        statusCode:
+          type: integer
+          example: 409
+    ErrorResponse500:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Server error"
+        statusCode:
+          type: integer
+          example: 500
