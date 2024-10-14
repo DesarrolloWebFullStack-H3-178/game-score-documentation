@@ -11,7 +11,7 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: http://localhost:3001/api/v1/
+  - url: http://localhost:3000/api/v1/
 tags:
   - name: Authentication
     description: Domain about security and users authentication
@@ -34,7 +34,7 @@ paths:
             schema:
               $ref: '#/components/schemas/UserCreate'
       responses:
-        204:
+        201:
           description: User created successfully
         400:
           description: User Bad Request
@@ -48,6 +48,12 @@ paths:
             application/json: 
                schema: 
                 $ref: '#/components/schemas/ErrorResponse409'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
   /auth/login:
     post:
       summary: Login user
@@ -73,7 +79,13 @@ paths:
           content:
             application/json: 
               schema: 
-                $ref:  '#/components/schemas/ErrorResponse400' 
+                $ref:  '#/components/schemas/ErrorResponse400'
+        401:
+          description: User bad request
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse401' 
         500:
           description: Internal server error
           content:
@@ -83,6 +95,8 @@ paths:
   /users/profile/{userid}:
     get:
       summary: Get detailed data of user
+      security:
+        - bearerAuth: []
       tags:
         - Users
       description: Get detailed data of user
@@ -122,6 +136,8 @@ paths:
   /users/session/{userid}:
     get:
       summary: Verify user session
+      security:
+        - bearerAuth: []
       tags:
         - Users
       description: Verify ifuser sessionis active
@@ -161,6 +177,8 @@ paths:
   /users/scores/{userId}:
     get:
       summary: Get user
+      security:
+        - bearerAuth: []
       tags:
         - Users
       description: Get scores of user given uuid
@@ -203,6 +221,8 @@ paths:
   /users/profile/{userId}:
     put:
       summary: Update user
+      security:
+        - bearerAuth: []
       tags:
         - Users
       description: Alter data for user
@@ -248,6 +268,8 @@ paths:
   /scores:
     post:
       summary: Create a score to an User
+      security:
+        - bearerAuth: []
       tags:
         - Scores
       description: Create a score and relationates it to an User
@@ -276,6 +298,8 @@ paths:
   /scores/leaderboard:
     get:
       summary: Get the list of best players
+      security:
+        - bearerAuth: []
       tags:
         - Scores
       description: Get the list of best player in order of higher to lower scores
@@ -305,6 +329,8 @@ paths:
   /users/admin/scores/{userId}:
     delete:
       summary: Deletes a score of specific player
+      security:
+        - bearerAuth: []
       tags:
         - Scores
       description: Only admin deletes an score with his UUID
@@ -334,6 +360,8 @@ paths:
   /users/admin:
     get:
       summary: Get the list of all players
+      security:
+        - bearerAuth: []
       tags:
         - Users
       description: Get the list of all players 
@@ -363,6 +391,8 @@ paths:
   /users/admin/{userid}:
     patch:
       summary: Block or Unblock an User
+      security:
+        - bearerAuth: []
       tags:
         - Users
       description: Block or Unblock an User with his UUID
@@ -392,6 +422,8 @@ paths:
   /users/admin/{userId}:
     delete:
       summary: Deletes an User
+      security:
+        - bearerAuth: []
       tags:
         - Users
       description: Only admin deletes an User with his UUID
@@ -419,6 +451,11 @@ paths:
               schema: 
                 $ref:  '#/components/schemas/ErrorResponse500'
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     UserCreate:
       type: object
@@ -526,6 +563,7 @@ components:
         isBlocked:
           type: boolean
           example: false
+      
     ScoresResponse:
       type: object
       properties:
