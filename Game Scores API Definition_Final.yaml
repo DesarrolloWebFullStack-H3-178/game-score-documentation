@@ -32,10 +32,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserCreate'
+              $ref: '#/components/schemas/UserRegister'
       responses:
-        201:
+        200:
           description: User created successfully
+          content:
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/UserRegisterResponse'
         400:
           description: User Bad Request
           content:
@@ -80,12 +84,6 @@ paths:
             application/json: 
               schema: 
                 $ref:  '#/components/schemas/ErrorResponse400'
-        401:
-          description: User bad request
-          content:
-            application/json: 
-              schema: 
-                $ref:  '#/components/schemas/ErrorResponse401' 
         500:
           description: Internal server error
           content:
@@ -133,7 +131,7 @@ paths:
             application/json: 
               schema: 
                 $ref:  '#/components/schemas/ErrorResponse500'
-  /users/session/{userid}:
+  /users/session/{userId}:
     get:
       summary: Verify user session
       security:
@@ -144,7 +142,7 @@ paths:
       operationId: Session
       parameters: 
         - in: path
-          name: userid
+          name: userId
           schema:
             type: string
           required: true
@@ -174,7 +172,7 @@ paths:
             application/json: 
               schema: 
                 $ref:  '#/components/schemas/ErrorResponse500'
-  /users/scores/{userId}:
+  /users/scores/{scoreId}:
     get:
       summary: Get user
       security:
@@ -185,7 +183,7 @@ paths:
       operationId: getUserScores
       parameters: 
         - in: path
-          name: userId
+          name: scoreId
           schema:
             type: string
           required: true
@@ -279,7 +277,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateScoreBody'
+              $ref: '#/components/schemas/CreateScore'
       responses:
         204: 
           description: Score created successfully
@@ -304,16 +302,24 @@ paths:
         - Scores
       description: Get the list of best player in order of higher to lower scores
       operationId: getLeaderboard
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: " Scores for page"
+          schema:
+            type: integer
+            example: 20
+        - name: page
+          in: query
+          required: false
+          description: "Number of actual page"
+          schema:
+            type: integer
+            example: 1
       responses:
         200: 
           description: List users with highest scores
-          content:
-            application/json: 
-              schema:
-                type: array
-                items:
-                  anyOf:
-                    - $ref: '#/components/schemas/UserSummary'
         401:
           description: Unauthorized
           content:
@@ -326,25 +332,26 @@ paths:
             application/json: 
               schema: 
                 $ref:  '#/components/schemas/ErrorResponse500'
-  /users/admin/scores/{userId}:
-    delete:
-      summary: Deletes a score of specific player
+  /users/admin/scores/{scoreId}:
+    patch:
+      summary: Block or Unblock an Score
       security:
         - bearerAuth: []
       tags:
-        - Scores
-      description: Only admin deletes an score with his UUID
-      operationId: deleteScore
+        - Users
+      description: Block or Unblock an Score with his UUID
+      operationId: blockScore
       parameters: 
         - in: path
-          name: userId
+          name: scoreId
           required: true
-          description: Uuid of score to be deleted
+          description: Uuid of score to be blocked
           schema: 
             type: string
+      
       responses:
         204: 
-          description: Score Deleted
+          description: Score Blocked / Unblocked
         401:
           description: Unauthorized
           content:
@@ -366,16 +373,24 @@ paths:
         - Users
       description: Get the list of all players 
       operationId: getAllPlayers
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: " Users for page"
+          schema:
+            type: integer
+            example: 20
+        - name: page
+          in: query
+          required: false
+          description: "Number of actual page"
+          schema:
+            type: integer
+            example: 1
       responses:
-        200: 
-          description: List of users with player role
-          content:
-            application/json: 
-              schema:
-                type: array
-                items:
-                  anyOf:
-                    - $ref: '#/components/schemas/UserDetails'
+        200:
+          description: Paginate list of detailed users
         401:
           description: Unauthorized
           content:
@@ -404,6 +419,7 @@ paths:
           description: Uuid of user to be blocked
           schema: 
             type: string
+      
       responses:
         204: 
           description: User Blocked / Unblocked
@@ -420,30 +436,40 @@ paths:
               schema: 
                 $ref:  '#/components/schemas/ErrorResponse500'
   /users/admin/{userId}:
-    delete:
-      summary: Deletes an User
+    get:
+      summary: Get detailed data of user
       security:
         - bearerAuth: []
       tags:
         - Users
-      description: Only admin deletes an User with his UUID
-      operationId: deleteUser
+      description: Get detailed data of user
+      operationId: AdminUserId
       parameters: 
         - in: path
           name: userId
-          required: true
-          description: Uuid of user to be deleted
-          schema: 
+          schema:
             type: string
+          required: true
+          description: uuid of the user required
       responses:
-        204: 
-          description: User Deleted
+        200:
+          description: User data
+          content:
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/UserDetails' 
+        400:
+          description: User bad request
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse400' 
         401:
           description: Unauthorized
           content:
             application/json: 
-               schema: 
-                $ref: '#/components/schemas/ErrorResponse401'
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse401' 
         500:
           description: Internal server error
           content:
@@ -457,24 +483,7 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
-    UserCreate:
-      type: object
-      properties:
-        name:
-          type: string
-          example: "Jhon Doe Doe"
-        username:
-          type: string
-          example: "JhonDoe123"
-        email:
-          type: string
-          format: email
-          example: "jhonDoe@gmail.com"  
-        password:
-          type: string
-          format: password
-          example: "JhonDoe123456*."
-    UserUpdateRequest:
+    UserRegister:
       type: object
       properties:
         name:
@@ -493,14 +502,59 @@ components:
           example: "JhonDoe123456*."
         role:
           type: string
-          example: "ADMIN"
-          description: Enum of existent roles
-        image:
+          example: "Player"
+        avatar:
           type: string
-          example: "https://gameScores/jhonDoeAvatar.webp"
+          example: "https://gameScores/johndoeAvatar.webp"
+    UserRegisterResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          example: "a23e4567-e89b-12d3-a456-426614174009"
+        name:
+          type: string
+          example: "Jhon Doe Doe"
+        username:
+          type: string
+          example: "JhonDoe123"
+        email:
+          type: string
+          format: email
+          example: "jhonDoe@gmail.com"  
+        password:
+          type: string
+          format: password
+          example: "JhonDoe123456*."
+        role:
+          type: string
+          example: "Player"
+        avatar:
+          type: string
+          example: "https://gameScores/johndoeAvatar.webp"
         isActive:
           type: boolean
-          example: false
+          example: true
+    UserUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Jhon Doe Doe"
+        username:
+          type: string
+          example: "JhonDoe123"
+        email:
+          type: string
+          format: email
+          example: "jhonDoe@gmail.com"  
+        password:
+          type: string
+          format: password
+          example: "JhonDoe123456*."
+        avatar:
+          type: string
+          example: "https://gameScores/jhonDoeAvatar.webp"
     UserLoginRequest:
       type: object
       properties:
@@ -540,16 +594,16 @@ components:
     UserDetails:
       type: object
       properties:
-        id:
+        userId:
           type: string
-          example: "uuid"
+          example: "223e4567-e89b-12d3-a456-426614174001"
         name:
           type: string
           example: "Jhon Doe Doe"
         username:
           type: string
           example: "JhonDoe"
-        image:
+        avatar:
           type: string
           example: "https://gameScores/jhonDoeAvatar.webp"
         email:
@@ -558,11 +612,37 @@ components:
           example: "jhonDoe@gmail.com"
         role:
           type: string
-          example: "ADMIN|PLAYER"
+          example: "Admin"
           description: Enum of existent roles
-        isBlocked:
+        isActive:
           type: boolean
-          example: false
+          example: true
+    AllUsersDetails:
+      type: object
+      properties:
+        userId:
+          type: string
+          example: "223e4567-e89b-12d3-a456-426614174001"
+        name:
+          type: string
+          example: "Jhon Doe Doe"
+        username:
+          type: string
+          example: "JhonDoe"
+        avatar:
+          type: string
+          example: "https://gameScores/jhonDoeAvatar.webp"
+        email:
+          type: string
+          format: email
+          example: "jhonDoe@gmail.com"
+        role:
+          type: string
+          example: "Admin"
+          description: Enum of existent roles
+        isActive:
+          type: boolean
+          example: true
       
     ScoresResponse:
       type: object
@@ -579,7 +659,7 @@ components:
         game::
           type: string
           example: 'Mario Bros!'
-    CreateScoreBody:
+    CreateScore:
       type: object
       properties:
         playerId: 
@@ -591,6 +671,9 @@ components:
         game:
           type: string
           example: "Mario Bros!"
+        isActive:
+          type: boolean
+          example: true
     ErrorResponse400:
       type: object
       properties:
