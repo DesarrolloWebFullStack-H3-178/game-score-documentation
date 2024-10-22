@@ -149,11 +149,11 @@ paths:
           description: uuid of the user required
       responses:
         200:
-          description: User data
+          description: Session of User status
           content:
             application/json: 
               schema: 
-                $ref: '#/components/schemas/UserDetails' 
+                $ref: '#/components/schemas/UserSessionDetails' 
         400:
           description: User bad request
           content:
@@ -238,6 +238,53 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        200:
+          description: user information successfully modified
+          content:
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/UserDetails' 
+        400:
+          description: User bad request
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse400' 
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /users/admin/profile/{userId}:
+    put:
+      summary: Update user
+      security:
+        - bearerAuth: []
+      tags:
+        - Users
+      description: Alter data for user
+      operationId: adminUserUpdate
+      parameters: 
+        - in: path
+          name: userId
+          schema:
+            type: integer
+          required: true
+          description: uuid of the user to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAdminUpdateRequest'
       responses:
         200:
           description: user information successfully modified
@@ -489,7 +536,7 @@ components:
         name:
           type: string
           example: "Jhon Doe Doe"
-        username:
+        userName:
           type: string
           example: "JhonDoe123"
         email:
@@ -555,6 +602,32 @@ components:
         avatar:
           type: string
           example: "https://gameScores/jhonDoeAvatar.webp"
+    UserAdminUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Jhon Doe Doe"
+        username:
+          type: string
+          example: "JhonDoe123"
+        email:
+          type: string
+          format: email
+          example: "jhonDoe@gmail.com"  
+        password:
+          type: string
+          format: password
+          example: "JhonDoe123456*."
+        avatar:
+          type: string
+          example: "https://gameScores/jhonDoeAvatar.webp"
+        role:
+          type: string
+          example: "Admin"
+        isActive:
+          type: boolean
+          example: false
     UserLoginRequest:
       type: object
       properties:
@@ -569,6 +642,32 @@ components:
     UserLoginResponse:
       type: object
       properties:
+        userId:
+          type: string
+          example: "a23e4567-e89b-12d3-a456-426614174009"
+        name:
+          type: string
+          example: "Jhon Doe Doe"
+        username:
+          type: string
+          example: "JhonDoe123"
+        email:
+          type: string
+          format: email
+          example: "jhonDoe@gmail.com"  
+        password:
+          type: string
+          format: password
+          example: "JhonDoe123456*."
+        role:
+          type: string
+          example: "Player"
+        avatar:
+          type: string
+          example: "https://gameScores/johndoeAvatar.webp"
+        isActive:
+          type: boolean
+          example: true
         token:
           type: string
           example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
@@ -617,6 +716,30 @@ components:
         isActive:
           type: boolean
           example: true
+          
+    UserSessionDetails:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "session logged in successfully"
+        data:
+          type: object
+          properties:
+            userId:
+              type: string
+              example: "12345"
+            userName:
+              type: string
+              example: "johndoe"
+            sessionToken:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR..."
+            expiresAt:
+              type: string
+              format: date-time
+              example: "2024-10-22T14:48:00.000Z"
+              
     AllUsersDetails:
       type: object
       properties:
