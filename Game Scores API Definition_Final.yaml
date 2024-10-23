@@ -11,7 +11,7 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: http://localhost:3000/api/v1/
+  - url: http://localhost:3000/api/v1
 tags:
   - name: Authentication
     description: Domain about security and users authentication
@@ -20,9 +20,9 @@ tags:
   - name: Scores
     description: Domain about game scores data
 paths:
-  /auth/register:
+  /users/auth/register:
     post:
-      summary: Create User
+      summary: Create User (Register)
       tags: 
         - Authentication
       description: Creates an user with email, name, username and password
@@ -58,9 +58,9 @@ paths:
             application/json: 
               schema: 
                 $ref:  '#/components/schemas/ErrorResponse500'
-  /auth/login:
+  /users/auth/login:
     post:
-      summary: Login user
+      summary: Login user (Auth)
       tags:
         - Authentication
       description: Authenticate user with email and password
@@ -172,50 +172,6 @@ paths:
             application/json: 
               schema: 
                 $ref:  '#/components/schemas/ErrorResponse500'
-  /users/scores/{scoreId}:
-    get:
-      summary: Get user
-      security:
-        - bearerAuth: []
-      tags:
-        - Users
-      description: Get scores of user given uuid
-      operationId: getUserScores
-      parameters: 
-        - in: path
-          name: scoreId
-          schema:
-            type: string
-          required: true
-          description: uuid of the user required
-      responses:
-        200:
-          description: User data
-          content:
-            application/json: 
-              schema:
-                type: array
-                items:
-                  anyOf:
-                    - $ref: '#/components/schemas/ScoresResponse'
-        400:
-          description: User bad request
-          content:
-            application/json: 
-              schema: 
-                $ref:  '#/components/schemas/ErrorResponse400' 
-        401:
-          description: Unauthorized
-          content:
-            application/json: 
-              schema: 
-                $ref:  '#/components/schemas/ErrorResponse401' 
-        500:
-          description: Internal server error
-          content:
-            application/json: 
-              schema: 
-                $ref:  '#/components/schemas/ErrorResponse500'
   /users/profile/{userId}:
     put:
       summary: Update user
@@ -265,7 +221,7 @@ paths:
                 $ref:  '#/components/schemas/ErrorResponse500'
   /users/admin/profile/{userId}:
     put:
-      summary: Update user
+      summary: Update user with admin permissions
       security:
         - bearerAuth: []
       tags:
@@ -310,6 +266,159 @@ paths:
             application/json: 
               schema: 
                 $ref:  '#/components/schemas/ErrorResponse500'
+  /users/admin:
+    get:
+      summary: Get the list of all players with admin permissions
+      security:
+        - bearerAuth: []
+      tags:
+        - Users
+      description: Get the list of all players with admin permissions
+      operationId: getAllPlayers
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: " Users for page"
+          schema:
+            type: integer
+            example: 20
+        - name: page
+          in: query
+          required: false
+          description: "Number of actual page"
+          schema:
+            type: integer
+            example: 1
+      responses:
+        200:
+          description: Paginate list of detailed users
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /users/admin/{userid}:
+    patch:
+      summary: Block or Unblock an User with admin permissions
+      security:
+        - bearerAuth: []
+      tags:
+        - Users
+      description: Block or Unblock an User with his UUID
+      operationId: blockUser
+      parameters: 
+        - in: path
+          name: userid
+          required: true
+          description: Uuid of user to be blocked
+          schema: 
+            type: string
+      
+      responses:
+        204: 
+          description: User Blocked / Unblocked
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /users/admin/{userId}:
+    get:
+      summary: Get detailed data of user with admin permissions
+      security:
+        - bearerAuth: []
+      tags:
+        - Users
+      description: Get detailed data of user
+      operationId: AdminUserId
+      parameters: 
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: uuid of the user required
+      responses:
+        200:
+          description: User data
+          content:
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/UserDetails' 
+        400:
+          description: User bad request
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse400' 
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse401' 
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /scores/{scoreId}:
+    get:
+      summary: Get One Score
+      security:
+        - bearerAuth: []
+      tags:
+        - Scores
+      description: Get scores of user given uuid
+      operationId: getOneScore
+      parameters: 
+        - in: path
+          name: scoreId
+          schema:
+            type: string
+          required: true
+          description: uuid of the user required
+      responses:
+        200:
+          description: User data
+          content:
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/ScoresResponse'
+        400:
+          description: User bad request
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse400' 
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse401' 
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
   /scores:
     post:
       summary: Create a score to an User
@@ -328,6 +437,104 @@ paths:
       responses:
         204: 
           description: Score created successfully
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /scores/admin/{scoreId}:
+    patch:
+      summary: Block or Unblock an Score
+      security:
+        - bearerAuth: []
+      tags:
+        - Scores
+      description: Block or Unblock an Score with his UUID
+      operationId: blockScore
+      parameters: 
+        - in: path
+          name: scoreId
+          required: true
+          description: Uuid of score to be blocked
+          schema: 
+            type: string
+      responses:
+        204: 
+          description: Score Blocked / Unblocked
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /scores/admin/{scoreid}:
+    put:
+      summary: Block or Unblock an Score
+      security:
+        - bearerAuth: []
+      tags:
+        - Scores
+      description: Block or Unblock an Score with his UUID
+      operationId: UpdateScore
+      parameters: 
+        - in: path
+          name: scoreid
+          required: true
+          description: Uuid of score to be blocked
+          schema: 
+            type: string
+      responses:
+        204: 
+          description: Score Blocked / Unblocked
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /scores/{scoreid}:
+    put:
+      summary: Update data for one score
+      security:
+        - bearerAuth: []
+      tags:
+        - Scores
+      description: Update data for one score
+      operationId: UpdateDataScore
+      parameters: 
+        - in: path
+          name: scoreid
+          required: true
+          description: Uuid of score to be blocked
+          schema: 
+            type: string
+      responses:
+        204: 
+          description: Score Blocked / Unblocked
+          content:
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/ScoresResponse'
+          
         401:
           description: Unauthorized
           content:
@@ -373,150 +580,6 @@ paths:
             application/json: 
                schema: 
                 $ref: '#/components/schemas/ErrorResponse401'
-        500:
-          description: Internal server error
-          content:
-            application/json: 
-              schema: 
-                $ref:  '#/components/schemas/ErrorResponse500'
-  /users/admin/scores/{scoreId}:
-    patch:
-      summary: Block or Unblock an Score
-      security:
-        - bearerAuth: []
-      tags:
-        - Users
-      description: Block or Unblock an Score with his UUID
-      operationId: blockScore
-      parameters: 
-        - in: path
-          name: scoreId
-          required: true
-          description: Uuid of score to be blocked
-          schema: 
-            type: string
-      
-      responses:
-        204: 
-          description: Score Blocked / Unblocked
-        401:
-          description: Unauthorized
-          content:
-            application/json: 
-               schema: 
-                $ref: '#/components/schemas/ErrorResponse401'
-        500:
-          description: Internal server error
-          content:
-            application/json: 
-              schema: 
-                $ref:  '#/components/schemas/ErrorResponse500'
-  /users/admin:
-    get:
-      summary: Get the list of all players
-      security:
-        - bearerAuth: []
-      tags:
-        - Users
-      description: Get the list of all players 
-      operationId: getAllPlayers
-      parameters:
-        - name: limit
-          in: query
-          required: false
-          description: " Users for page"
-          schema:
-            type: integer
-            example: 20
-        - name: page
-          in: query
-          required: false
-          description: "Number of actual page"
-          schema:
-            type: integer
-            example: 1
-      responses:
-        200:
-          description: Paginate list of detailed users
-        401:
-          description: Unauthorized
-          content:
-            application/json: 
-               schema: 
-                $ref: '#/components/schemas/ErrorResponse401'
-        500:
-          description: Internal server error
-          content:
-            application/json: 
-              schema: 
-                $ref:  '#/components/schemas/ErrorResponse500'
-  /users/admin/{userid}:
-    patch:
-      summary: Block or Unblock an User
-      security:
-        - bearerAuth: []
-      tags:
-        - Users
-      description: Block or Unblock an User with his UUID
-      operationId: blockUser
-      parameters: 
-        - in: path
-          name: userid
-          required: true
-          description: Uuid of user to be blocked
-          schema: 
-            type: string
-      
-      responses:
-        204: 
-          description: User Blocked / Unblocked
-        401:
-          description: Unauthorized
-          content:
-            application/json: 
-               schema: 
-                $ref: '#/components/schemas/ErrorResponse401'
-        500:
-          description: Internal server error
-          content:
-            application/json: 
-              schema: 
-                $ref:  '#/components/schemas/ErrorResponse500'
-  /users/admin/{userId}:
-    get:
-      summary: Get detailed data of user
-      security:
-        - bearerAuth: []
-      tags:
-        - Users
-      description: Get detailed data of user
-      operationId: AdminUserId
-      parameters: 
-        - in: path
-          name: userId
-          schema:
-            type: string
-          required: true
-          description: uuid of the user required
-      responses:
-        200:
-          description: User data
-          content:
-            application/json: 
-              schema: 
-                $ref: '#/components/schemas/UserDetails' 
-        400:
-          description: User bad request
-          content:
-            application/json: 
-              schema: 
-                $ref:  '#/components/schemas/ErrorResponse400' 
-        401:
-          description: Unauthorized
-          content:
-            application/json: 
-              schema: 
-                $ref:  '#/components/schemas/ErrorResponse401' 
         500:
           description: Internal server error
           content:
@@ -766,7 +829,6 @@ components:
         isActive:
           type: boolean
           example: true
-      
     ScoresResponse:
       type: object
       properties:
