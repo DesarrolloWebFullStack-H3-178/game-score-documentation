@@ -378,6 +378,40 @@ paths:
             application/json: 
               schema: 
                 $ref:  '#/components/schemas/ErrorResponse500'
+  /scores:
+    post:
+      summary: Create a score to an User
+      security:
+        - bearerAuth: []
+      tags:
+        - Scores
+      description: Create a score and relationates it to an User
+      operationId: createScore
+      requestBody: 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScore'
+      responses:
+        204: 
+          description: Score created successfully
+          content:
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/CreateScoreResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
   /scores/{scoreId}:
     get:
       summary: Get One Score
@@ -413,112 +447,6 @@ paths:
             application/json: 
               schema: 
                 $ref:  '#/components/schemas/ErrorResponse401' 
-        500:
-          description: Internal server error
-          content:
-            application/json: 
-              schema: 
-                $ref:  '#/components/schemas/ErrorResponse500'
-  /scores:
-    post:
-      summary: Create a score to an User
-      security:
-        - bearerAuth: []
-      tags:
-        - Scores
-      description: Create a score and relationates it to an User
-      operationId: createScore
-      requestBody: 
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateScore'
-      responses:
-        204: 
-          description: Score created successfully
-          content:
-            application/json: 
-              schema:
-                $ref: '#/components/schemas/CreateScoreResponse'
-        401:
-          description: Unauthorized
-          content:
-            application/json: 
-               schema: 
-                $ref: '#/components/schemas/ErrorResponse401'
-        500:
-          description: Internal server error
-          content:
-            application/json: 
-              schema: 
-                $ref:  '#/components/schemas/ErrorResponse500'
-  /scores/admin/{scoreId}:
-    patch:
-      summary: Block or Unblock an Score as Admin
-      security:
-        - bearerAuth: []
-      tags:
-        - Scores
-      description: Block or Unblock an Score with his UUID as admin permissions
-      operationId: blockScoreByIdAdmin
-      parameters: 
-        - in: path
-          name: scoreId
-          required: true
-          description: Uuid of score to be blocked
-          schema: 
-            type: string
-      responses:
-        204: 
-          description: Score Blocked / Unblocked
-        401:
-          description: Unauthorized
-          content:
-            application/json: 
-               schema: 
-                $ref: '#/components/schemas/ErrorResponse401'
-        500:
-          description: Internal server error
-          content:
-            application/json: 
-              schema: 
-                $ref:  '#/components/schemas/ErrorResponse500'
-  /scores/admin/{scoreid}:
-    put:
-      summary:  Update data for one score as Admin permissions
-      security:
-        - bearerAuth: []
-      tags:
-        - Scores
-      description: Block or Unblock an Score with his UUID
-      operationId: UpdateScoreAdmin
-      parameters: 
-        - in: path
-          name: scoreid
-          required: true
-          description: Uuid of score to be blocked
-          schema: 
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateScore'
-      responses:
-        204: 
-          description: Score Blocked / Unblocked
-          content:
-            application/json: 
-              schema:
-                $ref: '#/components/schemas/ScoresResponse'
-        401:
-          description: Unauthorized
-          content:
-            application/json: 
-               schema: 
-                $ref: '#/components/schemas/ErrorResponse401'
         500:
           description: Internal server error
           content:
@@ -638,6 +566,119 @@ paths:
             application/json: 
                schema: 
                 $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /scores/admin/{scoreId}:
+    patch:
+      summary: Block or Unblock an Score as Admin
+      security:
+        - bearerAuth: []
+      tags:
+        - Scores
+      description: Block or Unblock an Score with his UUID as admin permissions
+      operationId: blockScoreByIdAdmin
+      parameters: 
+        - in: path
+          name: scoreId
+          required: true
+          description: Uuid of score to be blocked
+          schema: 
+            type: string
+      responses:
+        204: 
+          description: Score Blocked / Unblocked
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /scores/admin/{scoreid}:
+    put:
+      summary:  Update data for one score as Admin permissions
+      security:
+        - bearerAuth: []
+      tags:
+        - Scores
+      description: Block or Unblock an Score with his UUID
+      operationId: UpdateScoreAdmin
+      parameters: 
+        - in: path
+          name: scoreid
+          required: true
+          description: Uuid of score to be blocked
+          schema: 
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateScore'
+      responses:
+        204: 
+          description: Score Blocked / Unblocked
+          content:
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/ScoresResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /scores/admin/{sCoreId}:
+    get:
+      summary: Get One Score
+      security:
+        - bearerAuth: []
+      tags:
+        - Scores
+      description: Get scores of user given uuid
+      operationId: getScoreAdminById
+      parameters: 
+        - in: path
+          name: sCoreId
+          schema:
+            type: string
+          required: true
+          description: uuid of the user required
+      responses:
+        200:
+          description: User data
+          content:
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/ScoresResponse'
+        400:
+          description: User bad request
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse400' 
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse401' 
         500:
           description: Internal server error
           content:
