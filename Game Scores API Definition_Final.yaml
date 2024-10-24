@@ -26,7 +26,7 @@ paths:
       tags: 
         - Authentication
       description: Creates an user with email, name, username and password
-      operationId: register
+      operationId: userRegister
       requestBody: 
         required: true
         content:
@@ -64,7 +64,7 @@ paths:
       tags:
         - Authentication
       description: Authenticate user with email and password
-      operationId: login
+      operationId: userLogin
       requestBody:
         required: true
         content:
@@ -98,7 +98,7 @@ paths:
       tags:
         - Users
       description: Get detailed data of user
-      operationId: Users
+      operationId: getUserById
       parameters: 
         - in: path
           name: userid
@@ -139,7 +139,7 @@ paths:
       tags:
         - Users
       description: Verify ifuser sessionis active
-      operationId: Session
+      operationId: getUserSessionId
       parameters: 
         - in: path
           name: userId
@@ -221,13 +221,13 @@ paths:
                 $ref:  '#/components/schemas/ErrorResponse500'
   /users/admin/profile/{userId}:
     put:
-      summary: Update user with admin permissions
+      summary: Update user as Admin
       security:
         - bearerAuth: []
       tags:
         - Users
-      description: Alter data for user
-      operationId: adminUserUpdate
+      description: Alter data for user as Admin permissions
+      operationId: userAdminUpdate
       parameters: 
         - in: path
           name: userId
@@ -268,13 +268,13 @@ paths:
                 $ref:  '#/components/schemas/ErrorResponse500'
   /users/admin:
     get:
-      summary: Get the list of all players with admin permissions
+      summary: Get the list of all players as Admin
       security:
         - bearerAuth: []
       tags:
         - Users
       description: Get the list of all players with admin permissions
-      operationId: getAllPlayers
+      operationId: getAllUsersAdmin
       parameters:
         - name: limit
           in: query
@@ -307,13 +307,13 @@ paths:
                 $ref:  '#/components/schemas/ErrorResponse500'
   /users/admin/{userid}:
     patch:
-      summary: Block or Unblock an User with admin permissions
+      summary: Block or Unblock an User as Admin
       security:
         - bearerAuth: []
       tags:
         - Users
-      description: Block or Unblock an User with his UUID
-      operationId: blockUser
+      description: Block or Unblock an User with his UUID as admin permissions
+      operationId: blockUserAdmin
       parameters: 
         - in: path
           name: userid
@@ -339,13 +339,13 @@ paths:
                 $ref:  '#/components/schemas/ErrorResponse500'
   /users/admin/{userId}:
     get:
-      summary: Get detailed data of user with admin permissions
+      summary: Get detailed data of user as Admin
       security:
         - bearerAuth: []
       tags:
         - Users
-      description: Get detailed data of user
-      operationId: AdminUserId
+      description: Get detailed data of user with admin permissions
+      operationId: getuserByIdAdmin
       parameters: 
         - in: path
           name: userId
@@ -386,7 +386,7 @@ paths:
       tags:
         - Scores
       description: Get scores of user given uuid
-      operationId: getOneScore
+      operationId: getScoreById
       parameters: 
         - in: path
           name: scoreId
@@ -427,7 +427,7 @@ paths:
       tags:
         - Scores
       description: Create a score and relationates it to an User
-      operationId: createAScore
+      operationId: createScore
       requestBody: 
         required: true
         content:
@@ -437,6 +437,10 @@ paths:
       responses:
         204: 
           description: Score created successfully
+          content:
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/CreateScoreResponse'
         401:
           description: Unauthorized
           content:
@@ -451,13 +455,13 @@ paths:
                 $ref:  '#/components/schemas/ErrorResponse500'
   /scores/admin/{scoreId}:
     patch:
-      summary: Block or Unblock an Score
+      summary: Block or Unblock an Score as Admin
       security:
         - bearerAuth: []
       tags:
         - Scores
-      description: Block or Unblock an Score with his UUID
-      operationId: blockScore
+      description: Block or Unblock an Score with his UUID as admin permissions
+      operationId: blockScoreByIdAdmin
       parameters: 
         - in: path
           name: scoreId
@@ -482,13 +486,13 @@ paths:
                 $ref:  '#/components/schemas/ErrorResponse500'
   /scores/admin/{scoreid}:
     put:
-      summary: Block or Unblock an Score
+      summary:  Update data for one score as Admin permissions
       security:
         - bearerAuth: []
       tags:
         - Scores
       description: Block or Unblock an Score with his UUID
-      operationId: UpdateScore
+      operationId: UpdateScoreAdmin
       parameters: 
         - in: path
           name: scoreid
@@ -496,9 +500,19 @@ paths:
           description: Uuid of score to be blocked
           schema: 
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateScore'
       responses:
         204: 
           description: Score Blocked / Unblocked
+          content:
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/ScoresResponse'
         401:
           description: Unauthorized
           content:
@@ -519,7 +533,7 @@ paths:
       tags:
         - Scores
       description: Update data for one score
-      operationId: UpdateDataScore
+      operationId: UpdateScore
       parameters: 
         - in: path
           name: scoreid
@@ -527,6 +541,12 @@ paths:
           description: Uuid of score to be blocked
           schema: 
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateScore'
       responses:
         204: 
           description: Score Blocked / Unblocked
@@ -534,7 +554,6 @@ paths:
             application/json: 
               schema:
                 $ref: '#/components/schemas/ScoresResponse'
-          
         401:
           description: Unauthorized
           content:
@@ -555,7 +574,46 @@ paths:
       tags:
         - Scores
       description: Get the list of best player in order of higher to lower scores
-      operationId: getLeaderboard
+      operationId: getScoresLeaderboard
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: " Scores for page"
+          schema:
+            type: integer
+            example: 20
+        - name: page
+          in: query
+          required: false
+          description: "Number of actual page"
+          schema:
+            type: integer
+            example: 1
+      responses:
+        200: 
+          description: List users with highest scores
+        401:
+          description: Unauthorized
+          content:
+            application/json: 
+               schema: 
+                $ref: '#/components/schemas/ErrorResponse401'
+        500:
+          description: Internal server error
+          content:
+            application/json: 
+              schema: 
+                $ref:  '#/components/schemas/ErrorResponse500'
+  /scores/admin:
+    get:
+      summary: Get the list of All Scores as Admin
+      security:
+        - bearerAuth: []
+      tags:
+        - Scores
+      description: Get the list of best player in order of higher to lower scores with Admin permissions
+      operationId: getAllScoresAdmin
       parameters:
         - name: limit
           in: query
@@ -829,21 +887,29 @@ components:
         isActive:
           type: boolean
           example: true
+          
     ScoresResponse:
       type: object
       properties:
-        id: 
+        scoreId: 
           type: string
-          example: 'uuid'
+          example: 'a32759a4-b221-4a8c-829f-fc0bef74f36a'
+        playerId: 
+          type: string
+          example: 'e7cc2543-3ff1-4939-90a3-efb3dee0699e'
         score::
           type: integer
           example: 20
-        createdAt::
-          type: string
-          example: '2022-02-02T21:12:34.000Z'
         game::
           type: string
           example: 'Mario Bros!'
+        createdAt::
+          type: string
+          example: '2022-02-02T21:12:34.000Z'
+        isActive:
+          type: boolean
+          example: true
+          
     CreateScore:
       type: object
       properties:
@@ -856,9 +922,64 @@ components:
         game:
           type: string
           example: "Mario Bros!"
+    
+    CreateScoreResponse:
+      type: object
+      properties:
+        scoreId: 
+          type: string
+          example: 'a32759a4-b221-4a8c-829f-fc0bef74f36a'
+        playerId: 
+          type: string
+          example: 'e7cc2543-3ff1-4939-90a3-efb3dee0699e'
+        score::
+          type: integer
+          example: 20
+        game:
+          type: string
+          example: "Mario Bros!"
+        createdAt::
+          type: string
+          example: '2022-02-02T21:12:34.000Z'
         isActive:
           type: boolean
           example: true
+          
+    UpdateScore:
+      type: object
+      properties:
+        playerId: 
+          type: string
+          example: 'e7cc2543-3ff1-4939-90a3-efb3dee0699e'
+        score::
+          type: integer
+          example: 20
+        game:
+          type: string
+          example: "Mario Bros!"
+    
+    UpdateScoreResponse:
+      type: object
+      properties:
+        scoreId: 
+          type: string
+          example: 'a32759a4-b221-4a8c-829f-fc0bef74f36a'
+        playerId: 
+          type: string
+          example: 'e7cc2543-3ff1-4939-90a3-efb3dee0699e'
+        score::
+          type: integer
+          example: 20
+        game:
+          type: string
+          example: "Mario Bros!"
+        createdAt::
+          type: string
+          example: '2022-02-02T21:12:34.000Z'
+        isActive:
+          type: boolean
+          example: true
+          
     ErrorResponse400:
       type: object
       properties:
