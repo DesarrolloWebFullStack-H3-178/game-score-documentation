@@ -345,7 +345,7 @@ paths:
       tags:
         - Users
       description: Get detailed data of user with admin permissions
-      operationId: getuserByIdAdmin
+      operationId: getUserByIdAdmin
       parameters: 
         - in: path
           name: userId
@@ -461,7 +461,7 @@ paths:
       tags:
         - Scores
       description: Update data for one score
-      operationId: UpdateScore
+      operationId: updateScore
       parameters: 
         - in: path
           name: scoreid
