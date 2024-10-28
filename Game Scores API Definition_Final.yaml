@@ -20,7 +20,7 @@ tags:
   - name: Scores
     description: Domain about game scores data
 paths:
-  /users/auth/register:
+  /auth/register:
     post:
       summary: Create User (Register)
       tags: 
@@ -58,7 +58,7 @@ paths:
             application/json: 
               schema: 
                 $ref:  '#/components/schemas/ErrorResponse500'
-  /users/auth/login:
+  /auth/login:
     post:
       summary: Login user (Auth)
       tags:
